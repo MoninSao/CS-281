@@ -24,7 +24,7 @@
 
 .text
 
-# Button state constants (returned by ecall 0x122)
+# Button state constants returned by ecall 0x122
 .equ LEFT_PRESS,  0b10     # left button pressed
 .equ RIGHT_PRESS, 0b01     # right button pressed
 .equ NO_PRESS,    0b00     # no button pressed
@@ -33,22 +33,22 @@
 .equ MIN_VAL, 0
 .equ MAX_VAL, 99
 
-# LED control constants (a1 argument for ecall 0x121)
+# LED control constants a1 argument for ecall 0x121
 .equ LED_BOTH_ON,  0b11    # both LEDs on
 .equ LED_BOTH_OFF, 0b00    # both LEDs off
-.equ LED_GREEN,    0b01    # top (green) LED on only
-.equ LED_RED,      0b10    # bottom (red) LED on only
+.equ LED_GREEN,    0b01    # top green LED on only
+.equ LED_RED,      0b10    # bottom red LED on only
 
     .globl  main
 
-# ============================================================
+
 # main: Initialize display to "00" then enter the main loop
-# ============================================================
+
 main:
     li s0, 0            # initialize counter to 0
     mv a0, s0
     jal write_lcd       # display "00" on 7-segment
-    jal update_leds     # set initial LED state (green for even 0)
+    jal update_leds     # set initial LED state green for even 0
 
 loop:
     li a0, 0x122        # ecall to read button state
@@ -60,11 +60,11 @@ loop:
 
     ret                 # never reached
 
-# ============================================================
+
 # adjust_counter(a0 = button state, a1 = current counter)
 # Increments or decrements the counter based on button press,
 # updates the display, and returns the new value in a0.
-# ============================================================
+
 adjust_counter:
     addi sp, sp, -8
     sw ra, 0(sp)
@@ -81,7 +81,7 @@ adjust_counter:
     beq a0, t0, inc_counter
     j err_counter       # unknown state, treat as error
 
-# --- Decrement counter (LEFT button) ---
+# Decrement counter LEFT button
 dec_counter:
     li t0, MIN_VAL
     beq s0, t0, err_counter  # at minimum – cannot decrement, signal error
@@ -91,7 +91,7 @@ dec_counter:
     jal update_leds           # EC2/EC3: update LED indicator
     j exit_adj_counter
 
-# --- Increment counter (RIGHT button) ---
+# Increment counter RIGHT button
 inc_counter:
     li t0, MAX_VAL
     beq s0, t0, err_counter  # at maximum – cannot increment, signal error
@@ -101,13 +101,13 @@ inc_counter:
     jal update_leds           # EC2/EC3: update LED indicator
     j exit_adj_counter
 
-# --- Boundary error: flash LEDs to notify user ---
+# Boundary error: flash LEDs to notify user
 err_counter:
-    li a0, 5            # EC1: blink 5 times (parameterised, not hard-coded)
+    li a0, 5            # EC1: blink 5 times parameterised, not hard-coded
     jal flash_led
     jal update_leds     # restore LED state after flashing
 
-# --- Return the (possibly unchanged) counter ---
+# Return the (possibly unchanged) counter
 exit_adj_counter:
     mv a0, s0           # return counter value
     lw ra, 0(sp)
@@ -115,10 +115,10 @@ exit_adj_counter:
     addi sp, sp, 8
     ret
 
-# ============================================================
+
 # write_lcd(a0 = counter value 0-99)
 # Encodes the value and writes it to the dual 7-segment display
-# ============================================================
+
 write_lcd:
     addi sp, sp, -4
     sw ra, 0(sp)
@@ -128,7 +128,7 @@ write_lcd:
 
     mv a1, a0           # a1 = segment data for the ecall
     la t0, digit_msk
-    lw a2, 0(t0)        # a2 = update mask (all 1s = update every segment)
+    lw a2, 0(t0)        # a2 = update mask all 1s = update every segment
 
     li a0, 0x120        # ecall to update 7-segment display
     ecall
@@ -137,10 +137,10 @@ write_lcd:
     addi sp, sp, 4
     ret
 
-# ============================================================
+
 # extract_bcd(a0 = number 0-99)
 # Returns: a0 = 10s digit, a1 = 1s digit
-# ============================================================
+
 extract_bcd:
     mv t0, a0
     li t1, 10
@@ -150,11 +150,11 @@ extract_bcd:
     mv a1, t3
     ret
 
-# ============================================================
+
 # encode_digit(a0 = 10s digit, a1 = 1s digit)
 # Returns: a0 = 16-bit bitfield for both 7-segment displays
 # Upper byte (bits 8-15) = left display, lower byte = right display
-# ============================================================
+
 encode_digit:
     la t0, digits
     slli a0, a0, 2      # word offset into digit table for 10s digit
@@ -167,12 +167,12 @@ encode_digit:
     or a0, a0, a1       # combine both digits into one 16-bit field
     ret
 
-# ============================================================
+
 # update_leds()
-# EC3: Both LEDs on if s0 is a power of 2 (checked first)
+# EC3: Both LEDs on if s0 is a power of 2 checked first
 # EC2: Green LED if s0 is even, Red LED if s0 is odd
-# Reads current counter directly from s0 (no argument needed)
-# ============================================================
+# Reads current counter directly from s0 no argument needed
+
 update_leds:
     # EC3: check power of 2 using the identity: (n & (n-1)) == 0 for powers of 2
     # Special case: 0 is NOT a power of 2
@@ -193,24 +193,24 @@ not_power2:
     beqz t0, even_val
 
 odd_val:
-    # Odd number: turn on red (bottom) LED only
+    # Odd number: turn on red bottom LED only
     li a0, 0x121
     li a1, LED_RED
     ecall
     ret
 
 even_val:
-    # Even number: turn on green (top) LED only
+    # Even number: turn on green top LED only
     li a0, 0x121
     li a1, LED_GREEN
     ecall
     ret
 
-# ============================================================
+
 # flash_led(a0 = number of blink cycles)
 # EC1: Flashes both LEDs the specified number of times.
 # Called with a0=5 on boundary errors.
-# ============================================================
+
 flash_led:
     addi sp, sp, -12
     sw ra, 0(sp)
@@ -245,10 +245,10 @@ flash_done:
     addi sp, sp, 12
     ret
 
-# ============================================================
+
 # sleep(a0 = loop iteration count)
 # Busy-wait delay loop
-# ============================================================
+
 sleep:
     mv t0, a0
 sleep_loop:

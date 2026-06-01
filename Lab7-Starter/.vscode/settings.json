@@ -1,0 +1,19 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd \"/Users/moninsao/Documents/Drexel /Quarter 5/CS 281/CS-281/Lab7-Starter\" && python3 firmware\\.py count_5v2\\.d count_5v2\\.rom && echo \"--- count_5v2\\.rom \\(first 3 lines\\) ---\" && head -3 count_5v2\\.rom$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "git add": true,
+        "git commit": true,
+        "git push": true,
+        "/^cd \"/Users/moninsao/Documents/Drexel /Quarter 5/CS 281/CS-281/Lab7-Starter\" && python3 -c \"\nimport xml\\.etree\\.ElementTree as ET\ntree = ET\\.parse\\('rv5i_starter\\.circ'\\)\nroot = tree\\.getroot\\(\\)\n\n# Check control_unit output pins\nprint\\('=== control_unit output pins ==='\\)\nfor circ in root\\.findall\\('circuit'\\):\n    if circ\\.get\\('name'\\) == 'control_unit':\n        for comp in circ\\.findall\\('comp'\\):\n            if comp\\.get\\('name'\\) == 'Pin':\n                attrs = \\{a\\.get\\('name'\\): a\\.get\\('val'\\) for a in comp\\.findall\\('a'\\)\\}\n                if attrs\\.get\\('output','false'\\) == 'true':\n                    print\\(f'  OUT: label=\\{attrs\\.get\\(\\\\\"label\\\\\",\\\\\"\\?\\\\\"\\)\\} width=\\{attrs\\.get\\(\\\\\"width\\\\\",1\\)\\} loc=\\{comp\\.get\\(\\\\\"loc\\\\\"\\)\\}'\\)\n\n# Check all tunnels in main for branch/b_type related\nprint\\(\\)\nprint\\('=== All tunnels in main ==='\\)\nfor circ in root\\.findall\\('circuit'\\):\n    if circ\\.get\\('name'\\) == 'main':\n        for comp in circ\\.findall\\('comp'\\):\n            if comp\\.get\\('name'\\) == 'Tunnel':\n                attrs = \\{a\\.get\\('name'\\): a\\.get\\('val'\\) for a in comp\\.findall\\('a'\\)\\}\n                print\\(f'  Tunnel label=\\{attrs\\.get\\(\\\\\"label\\\\\",\\\\\"\\?\\\\\"\\)\\} width=\\{attrs\\.get\\(\\\\\"width\\\\\",\\\\\"1\\\\\"\\)\\} loc=\\{comp\\.get\\(\\\\\"loc\\\\\"\\)\\}'\\)\n\" 2>&1 \\| grep -v '\\^\\$'\n$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd \"/Users/moninsao/Documents/Drexel /Quarter 5/CS 281/CS-281/Lab7-Starter\" && python firmware\\.py branch_test\\.d branch_test\\.rom$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
